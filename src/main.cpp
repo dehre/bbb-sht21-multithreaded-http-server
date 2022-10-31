@@ -3,7 +3,6 @@
 #include <Poco/Net/HTTPServer.h>
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
-#include <Poco/Net/ServerSocket.h>
 #include <Poco/Util/ServerApplication.h>
 #include <iostream>
 #include <string_view>
@@ -27,6 +26,15 @@ class SensorRequestHandler : public HTTPRequestHandler
     }
 };
 
+class NotFoundRequestHandler : public HTTPRequestHandler
+{
+    void handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
+    {
+        res.setStatus(HTTPResponse::HTTP_NOT_FOUND);
+        res.send();
+    }
+};
+
 class RequestHandlerFactory : public HTTPRequestHandlerFactory
 {
     HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &req)
@@ -34,12 +42,16 @@ class RequestHandlerFactory : public HTTPRequestHandlerFactory
         Application &app = Application::instance();
         app.logger().information("Request from %s for %s", req.clientAddress().toString(), req.getURI());
 
-        // TODO LORIS: handle favicon, and any other request not for /
+        const auto &uri{req.getURI()};
+        if (uri != "/")
+        {
+            return new NotFoundRequestHandler;
+        }
         return new SensorRequestHandler;
     }
 };
 
-class WebServerApp : public ServerApplication
+class App : public ServerApplication
 {
     void initialize(Application &self)
     {
@@ -49,6 +61,7 @@ class WebServerApp : public ServerApplication
 
     int main(const std::vector<std::string> &)
     {
+        // TODO LORIS: remove cast
         UInt16 port = static_cast<UInt16>(config().getUInt("port", 8080));
 
         HTTPServer srv(new RequestHandlerFactory, port);
@@ -62,4 +75,4 @@ class WebServerApp : public ServerApplication
     }
 };
 
-POCO_SERVER_MAIN(WebServerApp)
+POCO_SERVER_MAIN(App)
