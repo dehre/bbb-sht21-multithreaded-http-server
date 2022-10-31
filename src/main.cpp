@@ -6,33 +6,36 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Util/ServerApplication.h>
 #include <iostream>
+#include <string_view>
 
 using namespace Poco;
 using namespace Poco::Net;
 using namespace Poco::Util;
 
-class HelloRequestHandler : public HTTPRequestHandler
+constexpr std::string_view g_version{"1.0"};
+constexpr double g_temperature{19.12};
+constexpr double g_humidity{50.95};
+
+class SensorRequestHandler : public HTTPRequestHandler
 {
-    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+    void handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
     {
-        Application &app = Application::instance();
-        app.logger().information("Request from %s", request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        response.send() << "<html>"
-                        << "<head><title>Hello</title></head>"
-                        << "<body><h1>Hello from the POCO Web Server</h1></body>"
-                        << "</html>";
+        res.setContentType("application/json");
+        // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
+        res.send() << "{\"version\":\"" << g_version << "\",\"data\":{\"temperature\":" << g_temperature
+                   << ",\"humidity\":" << g_humidity << "}}";
     }
 };
 
-class HelloRequestHandlerFactory : public HTTPRequestHandlerFactory
+class RequestHandlerFactory : public HTTPRequestHandlerFactory
 {
-    HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &)
+    HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &req)
     {
-        return new HelloRequestHandler;
+        Application &app = Application::instance();
+        app.logger().information("Request from %s for %s", req.clientAddress().toString(), req.getURI());
+
+        // TODO LORIS: handle favicon, and any other request not for /
+        return new SensorRequestHandler;
     }
 };
 
@@ -48,7 +51,7 @@ class WebServerApp : public ServerApplication
     {
         UInt16 port = static_cast<UInt16>(config().getUInt("port", 8080));
 
-        HTTPServer srv(new HelloRequestHandlerFactory, port);
+        HTTPServer srv(new RequestHandlerFactory, port);
         srv.start();
         logger().information("HTTP Server started on port %hu.", port);
         waitForTerminationRequest();
