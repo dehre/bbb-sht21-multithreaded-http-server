@@ -1,6 +1,24 @@
 [requires]
+    poco/1.12.2
 
 [generators]
     cmake
 
 [options]
+    poco:shared=False
+    poco:enable_json=True
+    poco:enable_net=True
+    poco:enable_crypto=True             # requires openssl (external dep)
+    poco:enable_jwt=True                # requires enable_json and enable_crypto
+    poco:enable_netssl=True             # requires enable_crypto, enable_util, and enable_net
+    poco:enable_util=True               # requires enable_json and enable_xml
+    poco:enable_xml=True                # requires expat (external dep)
+    poco:enable_data=False              # otherwise true by default
+    poco:enable_data_mysql=False        # otherwise true by default
+    poco:enable_data_postgresql=False   # otherwise true by default
+    poco:enable_data_sqlite=False       # otherwise true by default
+    poco:enable_encodings=False         # otherwise true by default
+    poco:enable_mongodb=False           # otherwise true by default
+    poco:enable_redis=False             # otherwise true by default
+    poco:enable_zip=False               # otherwise true by default
+    poco:enable_activerecord=False      # otherwise true by default
