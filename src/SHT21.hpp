@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Poco/ExpireCache.h>
+#include <Poco/Mutex.h>
 #include <string_view>
 
 using namespace Poco;
@@ -24,6 +25,7 @@ class SHT21
 
   private:
     ExpireCache<std::string_view, double> m_cache{};
+    Mutex m_mutex{};
 };
 
 SHT21 &SHT21::instance()
@@ -41,17 +43,19 @@ struct SHT21::Data
 
 SHT21::Data SHT21::get()
 {
-    // TODO LORIS: mutex here, or in constructor argument?
-
     bool cached{true};
-    if (!m_cache.has("temperature"))
+    double temperature{};
+    double humidity{};
     {
-        cached = false;
-        m_cache.add("temperature", 12.34);
-        m_cache.add("humidity", 12.34);
+        ScopedLock lock(m_mutex);
+        if (!m_cache.has("temperature") || !m_cache.has("humidity"))
+        {
+            cached = false;
+            m_cache.add("temperature", 12.34);
+            m_cache.add("humidity", 12.34);
+        }
+        temperature = *(m_cache.get("temperature"));
+        humidity = *(m_cache.get("humidity"));
     }
-
-    const auto temp{m_cache.get("temperature")};
-    const auto humid{m_cache.get("humidity")};
-    return {.temperature = *temp, .humidity = *humid, .cached = cached};
+    return {.temperature = temperature, .humidity = humidity, .cached = cached};
 }
