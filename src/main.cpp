@@ -1,3 +1,4 @@
+#include "SHT21.hpp"
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPRequestHandlerFactory.h>
 #include <Poco/Net/HTTPServer.h>
@@ -11,18 +12,19 @@ using namespace Poco;
 using namespace Poco::Net;
 using namespace Poco::Util;
 
+// TODO LORIS: env variables
+constexpr unsigned int g_port{8080};
 constexpr std::string_view g_version{"1.0"};
-constexpr double g_temperature{19.12};
-constexpr double g_humidity{50.95};
 
 class SensorRequestHandler : public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
     {
+        const auto data{SHT21::instance().get()};
         res.setContentType("application/json");
         // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
-        res.send() << "{\"version\":\"" << g_version << "\",\"data\":{\"temperature\":" << g_temperature
-                   << ",\"humidity\":" << g_humidity << "}}";
+        res.send() << "{\"version\":\"" << g_version << "\",\"data\":{\"temperature\":" << data.temperature
+                   << ",\"humidity\":" << data.humidity << "}}";
     }
 };
 
@@ -61,16 +63,14 @@ class App : public ServerApplication
 
     int main(const std::vector<std::string> &)
     {
-        // TODO LORIS: remove cast
-        UInt16 port = static_cast<UInt16>(config().getUInt("port", 8080));
-
+        // TODO LORIS: do I need to use config()?
+        UInt16 port = static_cast<UInt16>(config().getUInt("port", g_port));
         HTTPServer srv(new RequestHandlerFactory, port);
         srv.start();
         logger().information("HTTP Server started on port %hu.", port);
         waitForTerminationRequest();
         logger().information("Stopping HTTP Server...");
         srv.stop();
-
         return Application::EXIT_OK;
     }
 };
