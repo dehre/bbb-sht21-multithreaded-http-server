@@ -5,6 +5,7 @@
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
 #include <Poco/Util/ServerApplication.h>
+#include <iomanip>
 #include <iostream>
 #include <string_view>
 
@@ -16,6 +17,7 @@ using namespace Poco::Util;
 constexpr unsigned int g_port{8080};
 constexpr std::string_view g_version{"1.0"};
 
+// TODO LORIS: move to router.hpp
 class SensorRequestHandler : public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
@@ -24,10 +26,11 @@ class SensorRequestHandler : public HTTPRequestHandler
         res.setContentType("application/json");
         // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
         res.send() << "{\"version\":\"" << g_version << "\",\"data\":{\"temperature\":" << data.temperature
-                   << ",\"humidity\":" << data.humidity << "}}";
+                   << ",\"humidity\":" << data.humidity << ",\"cached\":" << std::boolalpha << data.cached << "}}";
     }
 };
 
+// TODO LORIS: move to router.hpp
 class NotFoundRequestHandler : public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
@@ -37,6 +40,7 @@ class NotFoundRequestHandler : public HTTPRequestHandler
     }
 };
 
+// TODO LORIS: move to router.hpp
 class RequestHandlerFactory : public HTTPRequestHandlerFactory
 {
     HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &req)
