@@ -22,6 +22,7 @@ class SensorRequestHandler : public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
     {
+        // TODO LORIS: handle errors by sending appropriate message to client
         const auto data{SHT21::instance().get()};
         res.setContentType("application/json");
         // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
