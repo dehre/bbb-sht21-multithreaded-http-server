@@ -12,12 +12,12 @@ class RequestHandlerFactory : public HTTPRequestHandlerFactory
     HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &req);
 };
 
-class DataRequestHandler : public HTTPRequestHandler
+class NotFoundRequestHandler : public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest &, HTTPServerResponse &res);
 };
 
-class NotFoundRequestHandler : public HTTPRequestHandler
+class DataRequestHandler : public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest &, HTTPServerResponse &res);
 };

@@ -19,6 +19,12 @@ HTTPRequestHandler *RequestHandlerFactory::createRequestHandler(const HTTPServer
     return new DataRequestHandler;
 }
 
+void NotFoundRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
+{
+    res.setStatus(HTTPResponse::HTTP_NOT_FOUND);
+    res.send() << "Not found";
+}
+
 void DataRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
 {
     // TODO LORIS: handle errors by sending appropriate message to client
@@ -31,10 +37,4 @@ void DataRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &
     res.send() << "{\"version\":\"" << std::fixed << std::setprecision(1) << CMAKE_PROJECT_VERSION
                << "\",\"data\":{\"temperature\":" << data.temperature << ",\"humidity\":" << data.humidity
                << ",\"cached\":" << std::boolalpha << data.cached << "}}";
-}
-
-void NotFoundRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
-{
-    res.setStatus(HTTPResponse::HTTP_NOT_FOUND);
-    res.send();
 }
