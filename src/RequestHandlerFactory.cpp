@@ -2,6 +2,7 @@
 #include "SHT21.hpp"
 #include <Poco/Util/Application.h>
 #include <iomanip>
+#include <iostream>
 
 using namespace Poco;
 using namespace Poco::Util;
@@ -22,19 +23,30 @@ HTTPRequestHandler *RequestHandlerFactory::createRequestHandler(const HTTPServer
 void NotFoundRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
 {
     res.setStatus(HTTPResponse::HTTP_NOT_FOUND);
-    res.send() << "Not found";
+    res.setContentType("text/plain");
+    res.send() << "Resource not found";
 }
 
 void DataRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
 {
-    // TODO LORIS: handle errors by sending appropriate message to client
-    // TODO LORIS: also check which kind of error messages are logged (eg for wrong env var)
-    Application &app = Application::instance();
-    Int64 expire_cache_timeout_ms{app.config().getInt64("SHT21_EXPIRE_CACHE_TIMEOUT_MS")};
-    const SHT21::Data data{SHT21::instance(expire_cache_timeout_ms).get()};
-    res.setContentType("application/json");
-    // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
-    res.send() << "{\"version\":\"" << std::fixed << std::setprecision(1) << CMAKE_PROJECT_VERSION
-               << "\",\"data\":{\"temperature\":" << data.temperature << ",\"humidity\":" << data.humidity
-               << ",\"cached\":" << std::boolalpha << data.cached << "}}";
+    try
+    {
+        Application &app = Application::instance();
+        Int64 expire_cache_timeout_ms{app.config().getInt64("SHT21_EXPIRE_CACHE_TIMEOUT_MS")};
+        const SHT21::Data data{SHT21::instance(expire_cache_timeout_ms).get()};
+
+        res.setStatus(HTTPResponse::HTTP_OK);
+        res.setContentType("application/json");
+        // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
+        res.send() << "{\"version\":\"" << std::fixed << std::setprecision(1) << CMAKE_PROJECT_VERSION
+                   << "\",\"data\":{\"temperature\":" << data.temperature << ",\"humidity\":" << data.humidity
+                   << ",\"cached\":" << std::boolalpha << data.cached << "}}";
+    }
+    catch (Poco::Exception &exc)
+    {
+        std::cerr << exc.displayText() << std::endl;
+        res.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+        res.setContentType("application/json");
+        res.send() << "{\"error\":\"" << exc.displayText() << "\"}";
+    }
 }
