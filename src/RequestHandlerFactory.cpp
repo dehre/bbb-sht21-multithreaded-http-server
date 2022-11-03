@@ -30,7 +30,7 @@ void DataRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &
     // TODO LORIS: handle errors by sending appropriate message to client
     // TODO LORIS: also check which kind of error messages are logged (eg for wrong env var)
     Application &app = Application::instance();
-    UInt64 expire_cache_timeout_ms{app.config().getUInt64("SHT21_EXPIRE_CACHE_TIMEOUT_MS")};
+    Int64 expire_cache_timeout_ms{app.config().getInt64("SHT21_EXPIRE_CACHE_TIMEOUT_MS")};
     const SHT21::Data data{SHT21::instance(expire_cache_timeout_ms).get()};
     res.setContentType("application/json");
     // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?

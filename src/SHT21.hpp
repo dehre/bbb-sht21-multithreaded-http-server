@@ -25,15 +25,12 @@ class SHT21
 
     /* Public Methods */
   public:
-    static SHT21 &instance(UInt64 expire_cache_timeout_ms); /* singleton */
+    static SHT21 &instance(Int64 expire_cache_timeout_ms); /* singleton */
     Data get();
 
     /* Private Constructors */
   private:
-    // TODO LORIS: fix warning
-    //   warning: conversion to ‘Poco::Timestamp::TimeDiff’ {aka ‘long int’} from ‘Poco::UInt64’ {aka ‘long unsigned
-    //   int’} may change the sign of the result [-Wsign-conversion]
-    SHT21(UInt64 expire_cache_timeout_ms) : m_cache(expire_cache_timeout_ms){};
+    SHT21(Int64 expire_cache_timeout_ms) : m_cache(expire_cache_timeout_ms){};
     SHT21(SHT21 const &) = delete;
     void operator=(SHT21 const &) = delete;
 
@@ -50,7 +47,7 @@ class SHT21
     Mutex m_mutex{};
 };
 
-SHT21 &SHT21::instance(UInt64 expire_cache_timeout_ms)
+SHT21 &SHT21::instance(Int64 expire_cache_timeout_ms)
 {
     static SHT21 singleton_instance(expire_cache_timeout_ms);
     return singleton_instance;
