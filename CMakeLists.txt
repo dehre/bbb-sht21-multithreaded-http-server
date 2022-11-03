@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(bbb-sht21-multithreaded-http-server VERSION 1.0)
+add_compile_definitions(CMAKE_PROJECT_VERSION=${CMAKE_PROJECT_VERSION}) # make version available in c++ files
 
 if(NOT DEFINED BUILD_LOCAL)
     add_custom_target(print-target ALL COMMAND ${CMAKE_COMMAND} -E echo Building for the BBB) # print message when running `cmake --build .`

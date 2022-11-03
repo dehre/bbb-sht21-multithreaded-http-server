@@ -13,21 +13,21 @@ using namespace Poco;
 using namespace Poco::Net;
 using namespace Poco::Util;
 
-// TODO LORIS: env variables
-constexpr unsigned int g_port{8080};
-constexpr std::string_view g_version{"1.0"};
-
 // TODO LORIS: move to router.hpp
 class SensorRequestHandler : public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest &, HTTPServerResponse &res)
     {
         // TODO LORIS: handle errors by sending appropriate message to client
-        const auto data{SHT21::instance().get()};
+        // TODO LORIS: also check which kind of error messages are logged (eg for wrong env var)
+        Application &app = Application::instance();
+        UInt64 expire_cache_timeout_ms{app.config().getUInt64("SHT21_EXPIRE_CACHE_TIMEOUT_MS")};
+        const SHT21::Data data{SHT21::instance(expire_cache_timeout_ms).get()};
         res.setContentType("application/json");
         // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
-        res.send() << "{\"version\":\"" << g_version << "\",\"data\":{\"temperature\":" << data.temperature
-                   << ",\"humidity\":" << data.humidity << ",\"cached\":" << std::boolalpha << data.cached << "}}";
+        res.send() << "{\"version\":\"" << std::fixed << std::setprecision(1) << CMAKE_PROJECT_VERSION
+                   << "\",\"data\":{\"temperature\":" << data.temperature << ",\"humidity\":" << data.humidity
+                   << ",\"cached\":" << std::boolalpha << data.cached << "}}";
     }
 };
 
@@ -68,8 +68,7 @@ class App : public ServerApplication
 
     int main(const std::vector<std::string> &)
     {
-        // TODO LORIS: do I need to use config()?
-        UInt16 port = static_cast<UInt16>(config().getUInt("port", g_port));
+        UInt16 port = static_cast<UInt16>(config().getUInt("PORT"));
         HTTPServer srv(new RequestHandlerFactory, port);
         srv.start();
         logger().information("HTTP Server started on port %hu.", port);

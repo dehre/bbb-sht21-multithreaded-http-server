@@ -17,9 +17,6 @@ namespace fs = std::filesystem;
 
 // TODO LORIS: split up SHT21.cpp from header file
 
-// TODO LORIS: env variables
-constexpr const Int64 g_expire_cache_timeout_ms{1000 * 20}; /* 20 seconds */
-
 class SHT21
 {
     /* Public Data Types */
@@ -28,12 +25,12 @@ class SHT21
 
     /* Public Methods */
   public:
-    static SHT21 &instance(); /* singleton */
+    static SHT21 &instance(UInt64 expire_cache_timeout_ms); /* singleton */
     Data get();
 
     /* Private Constructors */
   private:
-    SHT21() : m_cache(g_expire_cache_timeout_ms){};
+    SHT21(UInt64 expire_cache_timeout_ms) : m_cache(expire_cache_timeout_ms){};
     SHT21(SHT21 const &) = delete;
     void operator=(SHT21 const &) = delete;
 
@@ -50,9 +47,9 @@ class SHT21
     Mutex m_mutex{};
 };
 
-SHT21 &SHT21::instance()
+SHT21 &SHT21::instance(UInt64 expire_cache_timeout_ms)
 {
-    static SHT21 singleton_instance;
+    static SHT21 singleton_instance(expire_cache_timeout_ms);
     return singleton_instance;
 }
 
