@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iomanip>
 #include <optional>
+#include <sstream>
+#include <stdexcept>
 
 // TODO LORIS: throw Poco Exceptions for consistency https://docs.pocoproject.org/current/Poco.Exception.html
 
@@ -53,11 +55,17 @@ std::optional<fs::path> SHT21::search_file_in_dir(const fs::path &dir, const fs:
 double SHT21::read_sysfs_value(const fs::path &absolute_path)
 {
     std::ifstream inf{absolute_path};
-    char buf[20];
-    inf >> std::setw(20) >> buf; // TODO LORIS: we may get "read error  (press RETURN)"
+    char buf[30];
+    inf >> std::setw(30) >> buf;
     char *end;
-    // TODO LORIS: check for errors in strtod
-    return std::strtod(buf, &end);
+    double result{std::strtod(buf, &end)};
+    if (buf == end) /* see: https://en.cppreference.com/w/cpp/string/byte/strtof */
+    {
+        std::ostringstream errmsg{};
+        errmsg << "Failed to convert \"" << buf << "\" into number when reading " << absolute_path;
+        throw std::runtime_error(errmsg.str());
+    }
+    return result;
 }
 
 double SHT21::read_temperature()
