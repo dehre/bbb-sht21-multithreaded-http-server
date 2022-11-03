@@ -1,11 +1,13 @@
 #include "RequestHandlerFactory.hpp"
 #include "SHT21.hpp"
+#include <Poco/JSON/Object.h>
 #include <Poco/Util/Application.h>
 #include <iomanip>
 #include <iostream>
 
 using namespace Poco;
 using namespace Poco::Util;
+using namespace Poco::JSON;
 
 HTTPRequestHandler *RequestHandlerFactory::createRequestHandler(const HTTPServerRequest &req)
 {
@@ -37,16 +39,20 @@ void DataRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &
 
         res.setStatus(HTTPResponse::HTTP_OK);
         res.setContentType("application/json");
-        // TODO LORIS: maybe use https://docs.pocoproject.org/current/Poco.JSON.Stringifier.html ?
-        res.send() << "{\"version\":\"" << std::fixed << std::setprecision(1) << CMAKE_PROJECT_VERSION
-                   << "\",\"data\":{\"temperature\":" << data.temperature << ",\"humidity\":" << data.humidity
-                   << ",\"cached\":" << std::boolalpha << data.cached << "}}";
+
+        Object json{};
+        json.set("version", CMAKE_PROJECT_VERSION)
+            .set("data", Object{}
+                             .set("temperature", data.temperature)
+                             .set("humidity", data.humidity)
+                             .set("cached", data.cached));
+        json.stringify(res.send());
     }
     catch (Poco::Exception &exc)
     {
         std::cerr << exc.displayText() << std::endl;
         res.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
         res.setContentType("application/json");
-        res.send() << "{\"error\":\"" << exc.displayText() << "\"}";
+        Object{}.set("error", exc.displayText()).stringify(res.send());
     }
 }
