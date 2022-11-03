@@ -4,9 +4,6 @@
 #include <iomanip>
 #include <optional>
 #include <sstream>
-#include <stdexcept>
-
-// TODO LORIS: throw Poco Exceptions for consistency https://docs.pocoproject.org/current/Poco.Exception.html
 
 SHT21 &SHT21::instance(Int64 expire_cache_timeout_ms)
 {
@@ -63,7 +60,7 @@ double SHT21::read_sysfs_value(const fs::path &absolute_path)
     {
         std::ostringstream errmsg{};
         errmsg << "Failed to convert \"" << buf << "\" into number when reading " << absolute_path;
-        throw std::runtime_error(errmsg.str());
+        throw DataFormatException(errmsg.str());
     }
     return result;
 }
@@ -73,7 +70,7 @@ double SHT21::read_temperature()
     auto found{search_file_in_dir("/sys/class/hwmon", "temp1_input")};
     if (!found)
     {
-        throw std::runtime_error("Could not find sysfs entry for \"temp1_input\"");
+        throw FileNotFoundException("Could not find sysfs entry for \"temp1_input\"");
     }
     return read_sysfs_value(*found) / 1000;
 }
@@ -83,7 +80,7 @@ double SHT21::read_humidity()
     auto found{search_file_in_dir("/sys/class/hwmon", "humidity1_input")};
     if (!found)
     {
-        throw std::runtime_error("Could not find sysfs entry for \"humidity1_input\"");
+        throw FileNotFoundException("Could not find sysfs entry for \"humidity1_input\"");
     }
     return read_sysfs_value(*found) / 1000;
 }
