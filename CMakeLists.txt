@@ -54,6 +54,6 @@ conan_basic_setup(TARGETS)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Executable
-add_executable(http-server src/main.cpp)
+add_executable(http-server src/main.cpp src/RequestHandlerFactory.cpp)
 target_include_directories(http-server PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(http-server CONAN_PKG::poco stdc++fs) # stdc++fs links the <filesystem> library

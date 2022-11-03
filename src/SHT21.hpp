@@ -30,6 +30,9 @@ class SHT21
 
     /* Private Constructors */
   private:
+    // TODO LORIS: fix warning
+    //   warning: conversion to ‘Poco::Timestamp::TimeDiff’ {aka ‘long int’} from ‘Poco::UInt64’ {aka ‘long unsigned
+    //   int’} may change the sign of the result [-Wsign-conversion]
     SHT21(UInt64 expire_cache_timeout_ms) : m_cache(expire_cache_timeout_ms){};
     SHT21(SHT21 const &) = delete;
     void operator=(SHT21 const &) = delete;
