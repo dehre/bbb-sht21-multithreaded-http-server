@@ -5,6 +5,9 @@
 #include <optional>
 #include <sstream>
 
+using namespace Poco;
+namespace fs = std::filesystem;
+
 SHT21 &SHT21::instance(Int64 expire_cache_timeout_ms)
 {
     static SHT21 singleton_instance(expire_cache_timeout_ms);

@@ -6,8 +6,9 @@
 #include <iostream>
 
 using namespace Poco;
-using namespace Poco::Util;
 using namespace Poco::JSON;
+using namespace Poco::Net;
+using namespace Poco::Util;
 
 HTTPRequestHandler *RequestHandlerFactory::createRequestHandler(const HTTPServerRequest &req)
 {

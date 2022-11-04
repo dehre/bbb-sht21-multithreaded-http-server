@@ -5,19 +5,17 @@
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
 
-using namespace Poco::Net;
-
-class RequestHandlerFactory : public HTTPRequestHandlerFactory
+class RequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
 {
-    HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &req);
+    Poco::Net::HTTPRequestHandler *createRequestHandler(const Poco::Net::HTTPServerRequest &req);
 };
 
-class NotFoundRequestHandler : public HTTPRequestHandler
+class NotFoundRequestHandler : public Poco::Net::HTTPRequestHandler
 {
-    void handleRequest(HTTPServerRequest &, HTTPServerResponse &res);
+    void handleRequest(Poco::Net::HTTPServerRequest &, Poco::Net::HTTPServerResponse &res);
 };
 
-class DataRequestHandler : public HTTPRequestHandler
+class DataRequestHandler : public Poco::Net::HTTPRequestHandler
 {
-    void handleRequest(HTTPServerRequest &, HTTPServerResponse &res);
+    void handleRequest(Poco::Net::HTTPServerRequest &, Poco::Net::HTTPServerResponse &res);
 };
