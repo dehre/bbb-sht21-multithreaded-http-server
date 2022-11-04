@@ -54,6 +54,6 @@ void DataRequestHandler::handleRequest(HTTPServerRequest &, HTTPServerResponse &
         std::cerr << exc.displayText() << std::endl;
         res.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
         res.setContentType("application/json");
-        Object{}.set("error", exc.displayText()).stringify(res.send());
+        Object{}.set("version", CMAKE_PROJECT_VERSION).set("error", exc.displayText()).stringify(res.send());
     }
 }
