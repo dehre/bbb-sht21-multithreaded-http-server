@@ -11,7 +11,7 @@ An [`ExpireCache`](https://docs.pocoproject.org/current/Poco.ExpireCache.html),
 whose access is protected by a mutex,
 prevents simultaneous http requests from concurrently accessing the sensor.
 
-Last but not least, the server can be connected to a [fat-client Qt desktop application](http://TODO LORIS),
+Last but not least, the server can be connected to a [fat-client Qt desktop application](https://github.com/dehre/bbb-sht21-fat-client-qt-app),
 whose job is to retrieve the information and display it nicely to the user.
 
 <br/>
@@ -56,7 +56,7 @@ can be adjusted in [`http-server.properties`](./http-server.properties)
 
 ## Setup, Building, and Flashing
 
-This document goes in detail about how I set up my machine for cross-compilation.
+This [document](https://github.com/dehre/beaglebone-stuff/blob/main/cross-compilation-setup/README.md) goes in detail about how I set up my machine for cross-compilation.
 
 The project uses a [global CMake file](./CMakeLists.txt) with different targets.  
 Dependencies are managed through [Conan](./conanfile.txt).  
@@ -100,7 +100,7 @@ The program expects the [SHT21 LKM](https://docs.kernel.org/hwmon/sht21.html) to
 #
 
 # get root permissions
-sudu su
+sudo su
 
 # verify that the sht21 kernel module exists
 find "/lib/modules/$(uname -r)/kernel/drivers/hwmon" -name sht21.ko.xz
